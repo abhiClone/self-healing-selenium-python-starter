@@ -1,4 +1,10 @@
-import os, threading, time, pytest
+import sys
+import os
+
+# Add project root to Python path so `scripts/` is importable
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import threading, time, pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from scripts.demo_server import create_app
