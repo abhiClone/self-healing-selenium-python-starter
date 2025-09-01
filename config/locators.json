@@ -1,0 +1,25 @@
+{
+  "login.usernameInput": {
+    "context": "form#login",
+    "strategies": [
+      { "type": "css", "value": "input#username", "weight": 1.0 },
+      { "type": "css", "value": "input[name='username']", "weight": 0.9 },
+      { "type": "text", "value": "Username", "weight": 0.6 },
+      { "type": "xpath", "value": "//label[normalize-space(text())='Username']/following::input[1]", "weight": 0.6 }
+    ]
+  },
+  "login.passwordInput": {
+    "context": "form#login",
+    "strategies": [
+      { "type": "css", "value": "input#password", "weight": 1.0 },
+      { "type": "text", "value": "Password", "weight": 0.6 },
+      { "type": "xpath", "value": "//label[normalize-space(text())='Password']/following::input[1]", "weight": 0.6 }
+    ]
+  },
+  "login.submit": {
+    "strategies": [
+      { "type": "css", "value": "button[type='submit']", "weight": 1.0 },
+      { "type": "text", "value": "Sign in", "weight": 0.7 }
+    ]
+  }
+}
