@@ -1,31 +1,53 @@
-from flask import Flask, request, redirect, Response
-import os
+from flask import Flask, request
 
-def create_app():
-    app = Flask(__name__)
 
-    @app.route('/')
-    def index():
-        return redirect('/login')
+app = Flask(__name__)
 
-    @app.route('/login')
-    def login():
-        file_path = os.path.join(os.path.dirname(__file__), '..', 'demo_app', 'login.html')
-        with open(file_path, 'r', encoding='utf-8') as f:
-            html = f.read()
-        if request.args.get('variant') == 'broken':
-            html = (html
-                    .replace('id="username"', 'id="user"')
-                    .replace('name="username"', 'name="user"')
-                    .replace('>Username<', '>User ID<'))
-        return Response(html, mimetype='text/html')
 
-    @app.route('/dashboard')
-    def dashboard():
-        return '<h1>Dashboard</h1><p>You made it 🎉</p>'
+@app.route("/login")
+def login():
+    broken = request.args.get('broken')
+    # Render login form; change id attribute for broken variant
+    if broken:
+        return """<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Broken</title>
+</head>
+<body>
+    <h1>Login Form (Broken)</h1>
+    <form method='post' action='/dashboard'>
+        <label for='user'>Username:</label>
+        <input type='text' id='user' name='username'><br><br>
+        <label for='password'>Password:</label>
+        <input type='password' id='password' name='password'><br><br>
+        <button type='submit'>Sign In</button>
+    </form>
+</body>
+</html>"""
+    else:
+        return """<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login Form</h1>
+    <form method='post' action='/dashboard'>
+        <label for='username'>Username:</label>
+        <input type='text' id='username' name='username'><br><br>
+        <label for='password'>Password:</label>
+        <input type='password' id='password' name='password'><br><br>
+        <button type='submit'>Sign In</button>
+    </form>
+</body>
+</html>"""
 
-    return app
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', '3000'))
-    create_app().run(host='127.0.0.1', port=port, debug=False, use_reloader=False)
+@app.route("/dashboard", methods=['GET', 'POST'])
+def dashboard():
+    return "<h1>Welcome to Dashboard</h1>"
+
+
+def run_app(port: int = 5000):
+    app.run(host='127.0.0.1', port=port)

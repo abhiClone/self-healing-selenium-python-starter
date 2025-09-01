@@ -1,5 +1,5 @@
-
 name: CI
+
 on:
   push:
   pull_request:
@@ -18,30 +18,24 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Create venv & install deps
+      - name: Install dependencies
         run: |
-          python -m venv .venv
-          . .venv/bin/activate
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run pytest (headless)
+      - name: Run tests
         env:
           HEADLESS: "1"
         run: |
-          . .venv/bin/activate
           pytest tests/test_login_working.py
-
-      - name: Summarize heals
-        if: always()
-        run: |
-          . .venv/bin/activate
-          python scripts/summarize_heals.py
           pytest tests/test_login_broken_heals.py
 
-      - name: Upload artifacts (heal logs & summary)
+      - name: Summarize heal events
+        if: always()
+        run: |
+          python scripts/summarize_heals.py
+
+      - name: Upload heal artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:

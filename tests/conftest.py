@@ -1,36 +1,31 @@
-import sys
-import os
-
-# Add project root to Python path so `scripts/` is importable
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import threading, time, pytest
+import threading
+import time
+import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from scripts.demo_server import create_app
 
-@pytest.fixture(scope="session", autouse=True)
-def demo_server():
-    app = create_app()
-    port = 3000
-    th = threading.Thread(target=lambda: app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False), daemon=True)
-    th.start()
-    time.sleep(0.8)
-    yield
+from scripts.demo_server import run_app
+
 
 @pytest.fixture(scope="session")
 def base_url():
-    return "http://127.0.0.1:3000"
+    """Start the demo Flask server in a background thread for the test session."""
+    port = 5001
+    thread = threading.Thread(target=run_app, kwargs={'port': port}, daemon=True)
+    thread.start()
+    # Wait for server to be ready
+    time.sleep(1)
+    yield f"http://localhost:{port}"
+    # Server runs as daemon; will exit on teardown
+
 
 @pytest.fixture
 def driver():
-    opts = Options()
-    headless = os.environ.get("HEADLESS", "1") != "0"
-    if headless:
-        opts.add_argument("--headless=new")
-    opts.add_argument("--no-sandbox")
-    opts.add_argument("--disable-gpu")
-    opts.add_argument("--window-size=1280,800")
-    driver = webdriver.Chrome(options=opts)  # Selenium Manager resolves chromedriver
+    """Create a headless Chrome WebDriver for each test."""
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(options=options)
     yield driver
     driver.quit()

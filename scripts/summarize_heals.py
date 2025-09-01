@@ -1,31 +1,37 @@
-import os, json
+import json
+import os
+
 
 def main():
-    dirp = os.path.join(os.getcwd(), "artifacts", "heals")
-    events_path = os.path.join(dirp, "events.jsonl")
+    heals_dir = os.path.join(os.getcwd(), 'artifacts', 'heals')
+    events_path = os.path.join(heals_dir, 'events.jsonl')
     if not os.path.exists(events_path):
         print("No heal events found.")
         return
-    with open(events_path, "r", encoding="utf-8") as f:
-        lines = [l.strip() for l in f if l.strip()]
-    events = [json.loads(l) for l in lines]
-    rows = [
-        f"| {e['elementId']} | {e['oldPrimary']['type']}: {e['oldPrimary']['value']} | "
-        f"{e['healedWith']['type']}: {e['healedWith']['value']} | {e['score']:.2f} | {e['pageUrl']} | {e['timestamp']} |"
-        for e in events
-    ]
-    md = "\n".join([
-        "# Self-Healing Summary",
-        "",
-        "| Element ID | Old Primary | Healed With | Score | URL | Time |",
-        "|---|---|---|---:|---|---|",
-        *rows,
-        ""
-    ])
-    os.makedirs(dirp, exist_ok=True)
-    with open(os.path.join(dirp, "summary.md"), "w", encoding="utf-8") as f:
-        f.write(md)
-    print("Wrote artifacts/heals/summary.md")
+    summary = []
+    with open(events_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            try:
+                event = json.loads(line.strip())
+                summary.append(event)
+            except json.JSONDecodeError:
+                continue
+    if not summary:
+        print("No heal events found.")
+        return
+    # Write summary.md
+    md_path = os.path.join(heals_dir, 'summary.md')
+    with open(md_path, 'w', encoding='utf-8') as md:
+        md.write("| Element ID | Updated Strategies |\n")
+        md.write("|------------|------------------|\n")
+        for event in summary:
+            element_id = event.get('id')
+            updated = event.get('updated', {})
+            strategies = updated.get('strategies', [])
+            strat_desc = ', '.join([f"{s['type']}={s['value']}" for s in strategies])
+            md.write(f"| {element_id} | {strat_desc} |\n")
+    print(f"Heal summary written to {md_path}")
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

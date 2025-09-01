@@ -1,0 +1,15 @@
+{
+  "id": "login.usernameInput",
+  "updated": {
+    "strategies": [
+      {
+        "type": "css",
+        "value": "input[name='username']"
+      },
+      {
+        "type": "id",
+        "value": "username"
+      }
+    ]
+  }
+}

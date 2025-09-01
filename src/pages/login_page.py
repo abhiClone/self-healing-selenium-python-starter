@@ -1,17 +1,20 @@
 from .base_page import BasePage
 
+
 class LoginPage(BasePage):
+    """Page object for the login page."""
+
     def goto(self, base_url: str, broken: bool = False):
-        path = "/login?variant=broken" if broken else "/login"
-        self.driver.get(base_url + path)
+        """Navigate to the login page or its broken variant."""
+        path = "/login" if not broken else "/login?broken=1"
+        url = base_url.rstrip("/") + path
+        self.driver.get(url)
 
-    def fill_username(self, value: str, broken: bool = False):
-        locator = "login.usernmeInput" if broken else "login.usernameInput"
-        self.H(locator).send_keys(value)
+    def fill_username(self, value: str):
+        self.H("login.usernameInput").send_keys(value)
 
-    def fill_password(self, value: str, broken: bool = False):
-        locator = "login.passwrdInput" if broken else "login.passwordInput"
-        self.H(locator).send_keys(value)
+    def fill_password(self, value: str):
+        self.H("login.passwordInput").send_keys(value)
 
     def submit(self):
         self.H("login.submit").click()
